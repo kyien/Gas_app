@@ -11,26 +11,27 @@ import {
   } from 'react-native-responsive-screen'
    
 import firebase from "react-native-firebase"
-import RNFetchBlob from 'react-native-fetch-blob'
+// import RNFetchBlob from 'react-native-fetch-blob'
  import ImagePicker from 'react-native-image-picker'
 import HeaderBar from "../components/header"
 
-    const Blob = RNFetchBlob.polyfill.Blob
-    const fs = RNFetchBlob.fs
-    window.XMLHttpRequest = RNFetchBlob.polyfill.XMLHttpRequest
-    window.Blob = Blob
+    // const Blob = RNFetchBlob.polyfill.Blob
+    // const fs = RNFetchBlob.fs
+    // window.XMLHttpRequest = RNFetchBlob.polyfill.XMLHttpRequest
+    // window.Blob = Blob
 
 
     const uploadImage = (uri,imageName,mime = 'image/jpeg') => {
         return new Promise((resolve, reject) => {
-          const uploadUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri
+          const uploadUri = uri
            
             let uploadBlob = null
             const imageRef = firebase.storage().ref('receipts').child(imageName)
-      
+            console.log(imageRef)
             fs.readFile(uploadUri, 'base64')
             .then((data) => {
               return Blob.build(data, { type: `${mime};BASE64` })
+              console.log(data)
             })
             .then((blob) => {
               uploadBlob = blob
@@ -42,6 +43,7 @@ import HeaderBar from "../components/header"
             })
             .then((url) => {
               resolve(url)
+              console.log(url)
             //   this.setState({storageUrl:url})
             })
             .catch((error) => {
@@ -72,45 +74,54 @@ export default class SalesForm extends Component{
 
         chooseFile(){
             
-            // let options = {
-            //   title: 'Select Image',
-            //   customButtons: [
-            //     { name: 'customOptionKey', title: 'Choose Photo from Custom Option' },
-            //   ],
-            //   storageOptions: {
-            //     skipBackup: true,
-            //     path: 'images',
-            //   },
-            // }
-            ImagePicker.launchImageLibrary({}, response => {
-                const sessionId = new Date().getTime()
-                const imageName='${sessionId}.jpg'
-                this.setState({storageUrl : imageName })
-                uploadImage(response.uri,imageName)
-                    .then(url => 
-                    this.setState({storageUrl:url})
-                    )
-                    .catch(error => Alert.alert(JSON.stringify(error)))
-         
-            //     if (response.didCancel) {
-            //         console.log('User cancelled image picker');
-            //       } else if (response.error) {
-            //         console.log('ImagePicker Error: ', response.error);
-            //       } else if (response.customButton) {
-            //         console.log('User tapped custom button: ', response.customButton);
-            //         alert(response.customButton);
-            
-            //   } 
-            //   else {
-            //     let source = response;
-            //     const uploadUri =response.uri
-            //     // You can also display the image using data:
-            //     // let source = { uri: 'data:image/jpeg;base64,' + response.data };
-            //     this.setState({
-            //       imageUrl: source,
-            //     });
-            //   }
+            let options = {
+              title: 'Select Image',
+              customButtons: [
+                { name: 'customOptionKey', title: 'Choose Photo from Custom Option' },
+              ],
+              storageOptions: {
+                skipBackup: true,
+                path: 'images',
+              },
+            }
+           
+            ImagePicker.showImagePicker(options, (response) => {
+                if (response.didCancel) {
+                  console.log('User cancelled photo picker');
+                }
+                else if (response.error) {
+                  console.log('ImagePicker Error: '+response.error);
+                }
+                else if (response.customButton) {
+                  console.log('User tapped custom button: '+response.customButton);
+                }
+                else {
+                    const sessionId = new Date().getTime()
+
+                const imageName=sessionId+'.jpg'
+                  firebase.storage().ref('receipts').child(imageName)
+                  .put(response.uri, { contentType : 'image/jpeg' }) //--> here just pass a uri
+                  .then((snapshot) => {
+                    console.log(JSON.stringify(snapshot.downloadURL))
+                    this.setState({storageUrl:snapshot.downloadURL})
+                  })
+                }
+                
             })
+            // ImagePicker.launchImageLibrary({}, response => {
+            //     const sessionId = new Date().getTime()
+
+            //     const imageName=sessionId+'.jpg'
+            //         // Alert.alert(imageName)
+            //     this.setState({storageUrl : imageName })
+            //     uploadImage(response.uri,imageName)
+            //         .then(url => 
+            //         this.setState({storageUrl:url})
+            //         )
+            //         .catch(error => console.log(error))
+         
+         
+            // })
           }
 
     render(){
