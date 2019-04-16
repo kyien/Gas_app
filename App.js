@@ -11,12 +11,9 @@ export default class App extends Component {
       duration: 1000,
       delay: 500,
    })
-  //  loc(this)
  
   }
-  // componentWillUnMount() {
-  //   rol()
-  // }
+  
   render() {
     return (
 

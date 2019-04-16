@@ -1,4 +1,4 @@
-import React ,{Component} from 'react'
+import React  from 'react'
 import { 
     View, Text, TextInput,Picker,Alert,Platform,
      Image,ScrollView,TouchableOpacity,StyleSheet} 
@@ -11,66 +11,55 @@ import {
   } from 'react-native-responsive-screen'
    
 import firebase from "react-native-firebase"
-// import RNFetchBlob from 'react-native-fetch-blob'
+import ValidationComponent from 'react-native-form-validator';
  import ImagePicker from 'react-native-image-picker'
+
+
+ //custom components
+ import Loader from "../components/loading";
 import HeaderBar from "../components/header"
 
-    // const Blob = RNFetchBlob.polyfill.Blob
-    // const fs = RNFetchBlob.fs
-    // window.XMLHttpRequest = RNFetchBlob.polyfill.XMLHttpRequest
-    // window.Blob = Blob
+   
 
-
-    const uploadImage = (uri,imageName,mime = 'image/jpeg') => {
-        return new Promise((resolve, reject) => {
-          const uploadUri = uri
-           
-            let uploadBlob = null
-            const imageRef = firebase.storage().ref('receipts').child(imageName)
-            console.log(imageRef)
-            fs.readFile(uploadUri, 'base64')
-            .then((data) => {
-              return Blob.build(data, { type: `${mime};BASE64` })
-              console.log(data)
-            })
-            .then((blob) => {
-              uploadBlob = blob
-              return imageRef.put(blob, { contentType: mime })
-            })
-            .then(() => {
-              uploadBlob.close()
-              return imageRef.getDownloadURL()
-            })
-            .then((url) => {
-              resolve(url)
-              console.log(url)
-            //   this.setState({storageUrl:url})
-            })
-            .catch((error) => {
-              reject(error)
-            })
-        })
-      }
-
-export default class SalesForm extends Component{
+export default class SalesForm extends ValidationComponent{
     constructor(props){
     super(props)
     this.state={
      quantity:'',
-     unit_price:null,
-     total_cylinders:null,
-     total:'900',
-     imageUrl:'',
+     unit_price:'',
+     total_cylinders:'',
+     total:'0',
+     receiptUrl:'wxdp.jpg',
+     counter:'0',
+     isloading:true
     }
 }
     componentDidMount(){
         loc(this)
+        this.setState({isloading:false})
     }
     
     componentWillUnMount() {
           rol()
+          
         }
     
+
+        id_gen =()=> {
+            
+               let newcounter=this.state.counter+1
+               this.setState({counter:newcounter})
+               return newcounter
+            
+          }
+
+       clearinputs=()=> {
+           this.setState({quantity:''})
+           this.setState({unit_price:''})
+           this.setState({total_cylinders:''})
+           this.setState({receiptUrl:'xxxx.jpg'})
+           this.setState({total:''})
+       }
 
         chooseFile(){
             
@@ -99,37 +88,72 @@ export default class SalesForm extends Component{
                     const sessionId = new Date().getTime()
 
                 const imageName=sessionId+'.jpg'
+                this.setState({isloading:true})
+
                   firebase.storage().ref('receipts').child(imageName)
                   .put(response.uri, { contentType : 'image/jpeg' }) //--> here just pass a uri
                   .then((snapshot) => {
                     console.log(JSON.stringify(snapshot.downloadURL))
-                    this.setState({storageUrl:snapshot.downloadURL})
+                    this.setState({receiptUrl:snapshot.downloadURL})
+                    this.setState({isloading:false})
+
                   })
                 }
                 
             })
-            // ImagePicker.launchImageLibrary({}, response => {
-            //     const sessionId = new Date().getTime()
-
-            //     const imageName=sessionId+'.jpg'
-            //         // Alert.alert(imageName)
-            //     this.setState({storageUrl : imageName })
-            //     uploadImage(response.uri,imageName)
-            //         .then(url => 
-            //         this.setState({storageUrl:url})
-            //         )
-            //         .catch(error => console.log(error))
-         
-         
-            // })
+          
           }
+          OnSubmit=()=> {
+            this.setState({isloading:true})
+
+            this.validate({
+                quantity: { required: true},
+                unit_price: {required: true,numbers:true,},
+                total_cylinders: {required: true,numbers:true,},
+                total: {required:true},
+                receiptUrl:{required:true}
+              });
+
+              if(this.isFormValid()){
+                  this.salesref =firebase.firestore().collection('sales')
+                  console.log(this.salesref)
+                  const salesDoc= {
+                      Total:this.state.total,
+                      quantity:this.state.quantity,
+                      receiptUrl:this.state.receiptUrl,
+                      total_cylinders:this.state.total_cylinders,
+                      unit_price:this.state.unit_price,
+                      created_at:firebase.firestore.FieldValue.serverTimestamp()
+                  }
+                  this.salesref.doc(this.id_gen()).set(salesDoc)
+                  .then((doc)=> {
+                    console.log("document written successfully!");
+                    this.clearinputs()
+                    this.setState({isloading:false})
+                    
+                })
+                .catch(function(error) {
+                    console.error("Error writing document: ", error);
+                });
+              }
+              else{
+
+                 // console.log(this.getErrorMessages())
+                  this.setState({isloading:false})
+              }
+
+          }
+
+         
 
     render(){
 
         return(
             <View style={styles.container}>
+            <Loader
+          isloading={this.state.isloading} />
             <HeaderBar navigation={this.props.navigation} title={'Sale Form'}/>
-
+            <View style={styles.holder}>
             <View style={styles.sub_container}>
 
                 <ScrollView style={styles.fields}>
@@ -137,10 +161,11 @@ export default class SalesForm extends Component{
                  <Picker
                     
                     selectedValue={this.state.quantity}
-                    style={{height: 50, width:wp('60%'), color:'#fff'}}
+                    style={{height: 50, width:wp('60%'), color:'#000'}}
                     onValueChange={(itemValue, itemIndex) =>
                         this.setState({quantity: itemValue})
                     }>
+                    <Picker.Item label="" value="" />
                     <Picker.Item label="3Kg" value="3kg" />
                     <Picker.Item label="6Kg" value="6kg" />
                     <Picker.Item label="13Kg" value="13kg" />
@@ -150,9 +175,12 @@ export default class SalesForm extends Component{
                     <Picker.Item label="50Kg" value="50kg" />
                     <Picker.Item label="50+ Kg" value="bulk" />
                     </Picker>
+            {this.isFieldInError('quantity') && this.getErrorsInField('quantity').map(errorMessage => <Text style={styles.err_field}>{errorMessage}</Text>) }
+
                     <Text  style={styles.inputlabel}>Unit Price:</Text>
 
                     <TextInput style = {styles.input}   
+                        ref="unit_price"
                         returnKeyType="go" 
                         placeholder='unit_price' 
                         keyboardType='numeric'
@@ -160,9 +188,12 @@ export default class SalesForm extends Component{
                         onChangeText={(unit_price) => this.setState({unit_price})}
 
                         />
+            {this.isFieldInError('unit_price') && this.getErrorsInField('unit_price').map(errorMessage => <Text style={styles.err_field}>{errorMessage}</Text>) }
+
                     <Text  style={styles.inputlabel}>Total Cylinders:</Text>
 
-                    <TextInput style = {styles.input}   
+                    <TextInput style = {styles.input} 
+                         ref="total_cylinders"  
                         returnKeyType="go" 
                         placeholder='total_cylinders' 
                         keyboardType='numeric'
@@ -170,11 +201,13 @@ export default class SalesForm extends Component{
                         onChangeText={(total_cylinders) => this.setState({total_cylinders})}
 
                         />
+            {this.isFieldInError('total_cylinders') && this.getErrorsInField('total_cylinders').map(errorMessage => <Text style={styles.err_field}>{errorMessage}</Text>) }
+
                     <Text  style={styles.inputlabel}>Total</Text>
 
                     <TextInput style = {styles.input}   
                         returnKeyType="go" 
-                        // placeholder='national id' 
+                        ref="total"
                         placeholderTextColor='#fff' 
                         editable={false}
                         value={this.state.total}
@@ -190,19 +223,20 @@ export default class SalesForm extends Component{
                             style={{ width: 100, height: 100 }}
                         /> */}
                         <Image
-                            source={{ uri: this.state.storageUrl}}
+                            source={{ uri: this.state.receiptUrl}}
                             style={{ width: 250, height: 250 }}
                         />
                         <Text style={{ alignItems: 'center' }}>
-                            {this.state.storageUrl}
+                            {this.state.receiptUrl}
                         </Text>
                    
         
-                    <TouchableOpacity style={styles.buttonContainer} >      
+                    <TouchableOpacity style={styles.buttonContainer} onPress={this.OnSubmit}>      
                         <Text  style={styles.buttonText}>SUBMIT</Text>
                     </TouchableOpacity>
         
                     </ScrollView>
+            </View>
             </View>
             </View>
         )
@@ -219,6 +253,9 @@ const styles=StyleSheet.create({
         
     
     },
+    holder:{
+        alignItems:'center'
+    },
     sub_container:{
         // flex:1,
         paddingLeft:wp('-10%'),
@@ -228,7 +265,7 @@ const styles=StyleSheet.create({
         alignItems: 'flex-start',
         width:wp('90%'),
         height:hp('80%'),
-        left:wp('5%')
+        // left:wp('0%')
 
     },
     buttonContainer:{
@@ -273,5 +310,9 @@ const styles=StyleSheet.create({
     inputlabel:{
         color:'#27ae60',
         fontSize:15
+    },
+    err_field:{
+        marginBottom:hp('2%'),
+        color:'#F30C0C'
     }
 })

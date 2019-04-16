@@ -55,17 +55,19 @@ render(){
             <ListItem last>
             <Icon type="FontAwesome" name="users" style={{color:'white'}}></Icon>
 
-            <Text style={styles.nav_text}>Manage Group</Text>
+            <Text style={styles.nav_text}>DashBoard</Text>
+             </ListItem>
+            <ListItem onPress={()=>this.props.navigation.navigate('Settings')} last>
+            <Icon type="FontAwesome" name="users" style={{color:'white'}}></Icon>
+
+            <Text style={styles.nav_text}>Settings</Text>
              </ListItem>
             <ListItem last>
             <Icon type="FontAwesome" name="comment" style={{color:'white'}}></Icon>
 
             <Text style={styles.nav_text}>Chats</Text>
              </ListItem>
-            <ListItem onPress={()=>this.props.navigation.navigate('Settings')}last>
-            <Icon type="FontAwesome" name="cog" style={{color:'white'}}></Icon>
-            <Text style={styles.nav_text}>Settings</Text>
-             </ListItem>
+           
             <ListItem last>
             <Icon type="FontAwesome" name="sign-out" style={{color:'white'}}></Icon>
 

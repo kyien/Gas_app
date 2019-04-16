@@ -17,8 +17,12 @@ export default class SettingsScreen extends Component {
             <View style={styles.container}>
                 <HeaderBar navigation={this.props.navigation} title={'Settings'}/>                
 
-                <Text>Settings page</Text>
-            </View>
+                {/* <Text>Settings page</Text> */}
+                {/* <Image
+
+                style={{width: null, height: null , resizeMode: 'cover'}}
+                source={require('../assets/exs.jpg')} /> */}
+                </View>
         )
     }
 

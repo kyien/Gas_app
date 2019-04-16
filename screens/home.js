@@ -1,41 +1,48 @@
 import  React,{Component } from "react";
-import {Text,View,StyleSheet,Image}from 'react-native'
+import {Text,View,StyleSheet,ImageBackground}from 'react-native'
 
 import {Container,List,ListItem,Left,Header,Right,Content,Body,Icon} from 'native-base'
 
 import HeaderBar from "../components/header";
-
+import {
+    widthPercentageToDP as wp,
+    heightPercentageToDP as hp,
+    listenOrientationChange as loc,
+    removeOrientationListener as rol
+  } from 'react-native-responsive-screen'
 
 export default class Home extends Component {
-
-    // static navigationOptions = ({ navigation }) => ({
-    //     header: <HeaderBar title="Home"/>
-    //   });
-    // state = {
-    //     members: []
-    //   }
-
-    //   componentDidMount = () => {
-    //     axios.get('http://ken.trusoft.tech/members').then(res =>{
-    //       const members=res.data
-    //       console.log(res.data)
-    //       this.setState({members})
-    //     }).catch(err=>{
-    //         console.log(err)
-    //     })
-    //   }
-      
+   
+    componentDidMount(){
+        loc(this)
+       
+    }
+    
+    componentWillUnMount() {
+          rol()
+          
+        }
+ 
     
     render() {
         return(
-            <Container style={styles.container}>
+            < ImageBackground 
+            source={require('../assets/ssp.jpg')} 
+
+            style={styles.container}>
             <HeaderBar navigation={this.props.navigation} title={'Home'}/>
               
-              <Content  style={styles.content}>
-    <Text>Welcome Home</Text>
+              <Body  style={styles.content}>
+
+         
+
+        
+
+             
+    
    
-            </Content>
-            </Container>
+            </Body>
+            </ ImageBackground>
                 );
             }
         }
@@ -43,8 +50,11 @@ export default class Home extends Component {
     const styles=StyleSheet.create({
         container:{
             flex:1,
-            // justifyContent: 'center',
-            backgroundColor: '#fff',       
+            width:null,
+            height:null,
+            justifyContent: 'center',
+            resizeMode: 'cover'
+            // backgroundColor: '#fff',       
          },
     
         content:{
