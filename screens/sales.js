@@ -1,6 +1,6 @@
 import React  from 'react'
 import { 
-    View, Text, TextInput,Picker,Alert,Platform,
+    View, Text, TextInput,Picker,Alert,Platform,ToastAndroid,
      Image,ScrollView,TouchableOpacity,StyleSheet} 
 from 'react-native'
 import {
@@ -18,19 +18,21 @@ import ValidationComponent from 'react-native-form-validator';
  //custom components
  import Loader from "../components/loading";
 import HeaderBar from "../components/header"
-
+import Clock from '../components/clock'
    
 
 export default class SalesForm extends ValidationComponent{
     constructor(props){
     super(props)
     this.state={
-     quantity:'',
-     unit_price:'',
-     total_cylinders:'',
-     total:'0',
-     receiptUrl:'wxdp.jpg',
-     counter:'0',
+     cust_name:'',
+     quantity:'0',
+     cust_phone:'',
+     unit_price:'0',
+     sixkg:'0',
+     thirteenkg:'0',
+     others:'0',
+     receiptUrl:'',
      isloading:true
     }
 }
@@ -43,24 +45,47 @@ export default class SalesForm extends ValidationComponent{
           rol()
           
         }
-    
+
 
         id_gen =()=> {
-            
-               let newcounter=this.state.counter+1
-               this.setState({counter:newcounter})
-               return newcounter
+             
+                let id='SL'+ Math.floor(100000 + Math.random() * 900000)   
+               
+               return id
             
           }
 
+          checkerr=(field)=>{
+
+                if(this.isFieldInError(field) && this.getErrorsInField(field).length>0){
+
+                    return this.getErrorsInField(field)
+                    .map(errorMessage => <Text style={styles.err_field}>{errorMessage}</Text>)
+                }
+                else{
+                    return null
+                }
+          }
+
        clearinputs=()=> {
-           this.setState({quantity:''})
+           this.setState({cust_name:''})
+           this.setState({cust_phone:''})
            this.setState({unit_price:''})
-           this.setState({total_cylinders:''})
+           this.setState({sixkg:''})
+           this.setState({thirteenkg:''})
+           this.setState({others:''})
            this.setState({receiptUrl:'xxxx.jpg'})
            this.setState({total:''})
+        // this.forceUpdate()
        }
 
+        calculateTotal=()=>{
+            const total=this.state.unit_price * ((this.state.sixkg*6) + 
+            (this.state.thirteenkg*13)+(this.state.quantity*this.state.others) )
+            console.log(total.toString())
+            let final_total=total.toString()
+        this.setState({total:final_total}) 
+    }
         chooseFile(){
             
             let options = {
@@ -100,17 +125,18 @@ export default class SalesForm extends ValidationComponent{
                   })
                 }
                 
+
             })
           
           }
           OnSubmit=()=> {
+            //   console.log(this.id_gen())
             this.setState({isloading:true})
 
             this.validate({
-                quantity: { required: true},
-                unit_price: {required: true,numbers:true,},
-                total_cylinders: {required: true,numbers:true,},
-                total: {required:true},
+                cust_name: { required: true,maxlength:30},
+                cust_phone: {required: true,numbers:true,maxlength:10},
+                
                 receiptUrl:{required:true}
               });
 
@@ -119,21 +145,37 @@ export default class SalesForm extends ValidationComponent{
                   console.log(this.salesref)
                   const salesDoc= {
                       Total:this.state.total,
-                      quantity:this.state.quantity,
-                      receiptUrl:this.state.receiptUrl,
-                      total_cylinders:this.state.total_cylinders,
+                      quantity:this.state.quantity +'kg',
+                      receipt:this.state.receiptUrl,
+                      '13kg':this.state.thirteenkg,
+                      '6kg':this.state.sixkg,
+                      others:this.state.others,
+                      CustomerName:this.state.cust_name,
+                      CustomerPhone:this.state.cust_phone,
                       unit_price:this.state.unit_price,
                       created_at:firebase.firestore.FieldValue.serverTimestamp()
                   }
+                  console.log(salesDoc)
                   this.salesref.doc(this.id_gen()).set(salesDoc)
+        
                   .then((doc)=> {
                     console.log("document written successfully!");
-                    this.clearinputs()
                     this.setState({isloading:false})
-                    
+                    this.clearinputs()              
+                     ToastAndroid.showWithGravity(
+                        'Record created succesfully!',
+                        ToastAndroid.SHORT,
+                        ToastAndroid.TOP,
+                      )
                 })
                 .catch(function(error) {
-                    console.error("Error writing document: ", error);
+                    this.setState({isloading:false})
+                    console.error("Error writing document: ", error)
+                    ToastAndroid.showWithGravity(
+                        'Unable to create record!',
+                        ToastAndroid.SHORT,
+                        ToastAndroid.TOP,
+                      )
                 });
               }
               else{
@@ -149,63 +191,133 @@ export default class SalesForm extends ValidationComponent{
     render(){
 
         return(
+            
             <View style={styles.container}>
             <Loader
           isloading={this.state.isloading} />
             <HeaderBar navigation={this.props.navigation} title={'Sale Form'}/>
             <View style={styles.holder}>
             <View style={styles.sub_container}>
+                    <Clock/>
+                <ScrollView style={styles.fields} showsVerticalScrollIndicator={true}>
+                 <Text  style={styles.inputlabel}>Customer Name:</Text>
 
-                <ScrollView style={styles.fields}>
-                 <Text  style={styles.inputlabel}>Quantity:</Text>
-                 <Picker
-                    
-                    selectedValue={this.state.quantity}
-                    style={{height: 50, width:wp('60%'), color:'#000'}}
-                    onValueChange={(itemValue, itemIndex) =>
-                        this.setState({quantity: itemValue})
-                    }>
-                    <Picker.Item label="" value="" />
-                    <Picker.Item label="3Kg" value="3kg" />
-                    <Picker.Item label="6Kg" value="6kg" />
-                    <Picker.Item label="13Kg" value="13kg" />
-                    <Picker.Item label="25Kg" value="25kg" />
-                    <Picker.Item label="40Kg" value="40kg" />
-                    <Picker.Item label="45Kg" value="45kg" />
-                    <Picker.Item label="50Kg" value="50kg" />
-                    <Picker.Item label="50+ Kg" value="bulk" />
-                    </Picker>
-            {this.isFieldInError('quantity') && this.getErrorsInField('quantity').map(errorMessage => <Text style={styles.err_field}>{errorMessage}</Text>) }
+                  <TextInput style = {styles.input}   
+                        ref="cust_name"
+                        returnKeyType="go" 
+                        // placeholder='unit_price' 
+                        keyboardType='default'
+                        value={this.state.cust_name}
+                        placeholderTextColor='#DDDBDA' 
+                        onChangeText={(cust_name) => this.setState({cust_name})}
+
+
+                        />
+                        <Text>{this.checkerr('cust_name')}</Text>
+
+                 <Text  style={styles.inputlabel}>Customer Phone:</Text>
+
+                  <TextInput style = {styles.input}   
+                        ref="cust_phone"
+                        returnKeyType="go" 
+                        // placeholder='unit_price' 
+                        keyboardType='numeric'
+                        value={this.state.cust_name}
+                        placeholderTextColor='#DDDBDA' 
+                        onChangeText={(cust_phone) => this.setState({cust_phone})}
+
+
+                        />
+                            <Text>{this.checkerr('cust_phone')}</Text>
+
+
+                 <View style={{flex: 1, flexDirection: 'row'}}>
 
                     <Text  style={styles.inputlabel}>Unit Price:</Text>
 
-                    <TextInput style = {styles.input}   
+                    <TextInput style = {styles.cust_input}   
                         ref="unit_price"
                         returnKeyType="go" 
-                        placeholder='unit_price' 
+                        // placeholder='unit_price' 
                         keyboardType='numeric'
+                        value={this.state.unit_price}
                         placeholderTextColor='#DDDBDA' 
                         onChangeText={(unit_price) => this.setState({unit_price})}
+                        onEndEditing={this.calculateTotal}
+
 
                         />
-            {this.isFieldInError('unit_price') && this.getErrorsInField('unit_price').map(errorMessage => <Text style={styles.err_field}>{errorMessage}</Text>) }
+       </View>
+                 <View style={{flex: 1, flexDirection: 'row'}}>
 
-                    <Text  style={styles.inputlabel}>Total Cylinders:</Text>
+                    <Text  style={styles.inputlabel}>6 Kg:</Text>
 
-                    <TextInput style = {styles.input} 
-                         ref="total_cylinders"  
+                    <TextInput style = {styles.cust_input}   
+                        ref="sixkg"
                         returnKeyType="go" 
-                        placeholder='total_cylinders' 
+                        // placeholder='unit_price' 
+                        keyboardType='numeric'
+                        value={this.state.sixkg}
+                        placeholderTextColor='#DDDBDA' 
+                        onChangeText={(sixkg) => this.setState({sixkg})}
+                        onEndEditing={this.calculateTotal}
+
+
+                        />
+       </View>
+        <View style={{flex: 1, flexDirection: 'row'}}>
+                    <Text  style={styles.inputlabel}>13kg:</Text>
+
+                    <TextInput style = {styles.cust_input} 
+                         ref="thirteenkg"  
+                        returnKeyType="go" 
+                        // placeholder='total_cylinders' 
                         keyboardType='numeric'
                         placeholderTextColor='#DDDBDA' 
-                        onChangeText={(total_cylinders) => this.setState({total_cylinders})}
+                        value={this.state.thirteenkg}
+                        onChangeText={(thirteenkg) => this.setState({thirteenkg})}
+                        onEndEditing={this.calculateTotal}
 
                         />
-            {this.isFieldInError('total_cylinders') && this.getErrorsInField('total_cylinders').map(errorMessage => <Text style={styles.err_field}>{errorMessage}</Text>) }
+            </View>
 
-                    <Text  style={styles.inputlabel}>Total</Text>
+                 <View style={{flex: 1, flexDirection: 'row'}}>
+                    <Text  style={styles.inputlabel}>Others:</Text>
+                    <View style={{flex: 1, flexDirection: 'column'}}>
 
-                    <TextInput style = {styles.input}   
+                        <Picker
+                    
+                    selectedValue={this.state.quantity}
+                    style={styles.picker}
+                    onValueChange={(itemValue, itemIndex) =>
+                        this.setState({quantity: itemValue})
+                    }>
+                    <Picker.Item label="choose" value="0" />
+                    <Picker.Item label="3Kg" value="3" />
+                    <Picker.Item label="25Kg" value="25" />
+                    <Picker.Item label="40Kg" value="40" />
+                    <Picker.Item label="45Kg" value="45" />
+                    <Picker.Item label="50Kg" value="50" />
+            </Picker>
+                    <TextInput style = {styles.cust_input} 
+                         ref="others"  
+                        returnKeyType="go" 
+                        // placeholder='total_cylinders' 
+                        keyboardType='numeric'
+                        placeholderTextColor='#DDDBDA' 
+                        value={this.state.others}
+                        onChangeText={(others) => this.setState({others})}
+                        onEndEditing={this.calculateTotal}
+
+                        />
+                        </View>
+            </View>
+
+                    <View style={{flex: 1, flexDirection: 'row'}}>
+
+                    <Text  style={styles.inputlabel}>Total(Kshs.):</Text>
+
+                    <TextInput style = {styles.cust_input}   
                         returnKeyType="go" 
                         ref="total"
                         placeholderTextColor='#fff' 
@@ -213,24 +325,24 @@ export default class SalesForm extends ValidationComponent{
                         value={this.state.total}
                         />
 
+                         </View>
+
                     <TouchableOpacity style={styles.uploadbtn} onPress={() =>this.chooseFile()}>      
                         <Text  style={styles.buttonText}>UPLOAD RECEIPT</Text>
                         </TouchableOpacity>
-                        {/* <Image
-                            source={{
-                            uri: 'data:image/jpeg;base64,' + this.state.imageUrl.data,
-                            }}
-                            style={{ width: 100, height: 100 }}
-                        /> */}
-                        <Image
-                            source={{ uri: this.state.receiptUrl}}
-                            style={{ width: 250, height: 250 }}
-                        />
-                        <Text style={{ alignItems: 'center' }}>
-                            {this.state.receiptUrl}
-                        </Text>
-                   
-        
+                       
+                        {this.state.receiptUrl ?
+                        <Image ref='receiptUrl'
+                            source= {{uri: this.state.receiptUrl}}
+                    
+                            style={{ width:wp('50%'), height: hp('23%') }}
+                        />:
+                        <Image  ref='receiptUrl'
+                            source={require('../assets/generic_avatar.jpg')}
+                    
+                            style={{ width:wp('50%'), height: hp('23%') }}
+                        />}
+                        <Text>{this.checkerr('receiptUrl')}</Text>
                     <TouchableOpacity style={styles.buttonContainer} onPress={this.OnSubmit}>      
                         <Text  style={styles.buttonText}>SUBMIT</Text>
                     </TouchableOpacity>
@@ -259,12 +371,12 @@ const styles=StyleSheet.create({
     sub_container:{
         // flex:1,
         paddingLeft:wp('-10%'),
-        marginTop: hp('5%'),
+        marginTop: hp('4%'),
         borderRadius:hp('1%'),
         backgroundColor:'#fff',
         alignItems: 'flex-start',
         width:wp('90%'),
-        height:hp('80%'),
+        height:hp('81%'),
         // left:wp('0%')
 
     },
@@ -272,14 +384,16 @@ const styles=StyleSheet.create({
         backgroundColor: '#2980b6',
         paddingVertical:hp('1.6%'),
         width:wp('50%'),
-        left:wp('7%')
+        left:wp('7%'),
+        marginBottom:hp('2.5%')
         // paddingTop:20
         // flexGrow:0.4
        },
        uploadbtn:{
+        marginTop: hp('4%'),
         backgroundColor: '#2980b6',
         paddingVertical:hp('1.6%'),
-        marginBottom:hp('3%'),
+        marginBottom:hp('2.5%'),
         width:wp('35%'),
         // left:wp('7%')
 
@@ -298,6 +412,9 @@ const styles=StyleSheet.create({
         // alignContent: '',
         // alignItems:'flex-start'
     },
+    picker:{
+        height: 50, width:wp('30%'), color:'#000', left:wp('30%')
+    },
     input:{
         height:hp('6%'),
         width:wp('75%'),
@@ -305,6 +422,15 @@ const styles=StyleSheet.create({
         borderRadius: 2,
         marginBottom:hp('2%'),
         paddingLeft:wp('10%'),
+        color: '#fff'
+    },
+    cust_input:{
+        height:hp('6%'),
+        width:wp('50%'),
+        backgroundColor: '#9B928D',
+        borderRadius: 2,
+        marginBottom:hp('3%'),
+        left:wp('20%'),
         color: '#fff'
     },
     inputlabel:{

@@ -2,6 +2,8 @@ import  React,{Component } from "react";
 import {Text,View,StyleSheet,ImageBackground}from 'react-native'
 
 import {Container,List,ListItem,Left,Header,Right,Content,Body,Icon} from 'native-base'
+import firebase from "react-native-firebase"
+
 
 import HeaderBar from "../components/header";
 import {
@@ -14,6 +16,9 @@ import {
 export default class Home extends Component {
    
     componentDidMount(){
+
+        
+
         loc(this)
        
     }
@@ -22,6 +27,7 @@ export default class Home extends Component {
           rol()
           
         }
+   
  
     
     render() {

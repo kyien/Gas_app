@@ -3,11 +3,15 @@ package com.gas_app;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.reactnativecommunity.asyncstorage.AsyncStoragePackage;
+import com.reactnativecommunity.netinfo.NetInfoPackage;
+import com.horcrux.svg.SvgPackage;
 import com.RNFetchBlob.RNFetchBlobPackage;
 import com.imagepicker.ImagePickerPackage;
 import io.invertase.firebase.RNFirebasePackage;
 import io.invertase.firebase.firestore.RNFirebaseFirestorePackage;
 import io.invertase.firebase.storage.RNFirebaseStoragePackage;
+import io.invertase.firebase.auth.RNFirebaseAuthPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
 import com.reactnativecomponent.splashscreen.RCTSplashScreenPackage;
 import com.swmansion.gesturehandler.react.RNGestureHandlerPackage;
@@ -33,12 +37,17 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new AsyncStoragePackage(),
+            new NetInfoPackage(),
+            new SvgPackage(),
             new RNFetchBlobPackage(),
             new ImagePickerPackage(),
           new RCTSplashScreenPackage(),
             new RNFirebasePackage(),
             new RNFirebaseFirestorePackage(),
             new RNFirebaseStoragePackage(),
+            new RNFirebaseAuthPackage(),
+            // new RNFirebaseFunctionsPackage(),
            new VectorIconsPackage(),
             new RNGestureHandlerPackage()
 
