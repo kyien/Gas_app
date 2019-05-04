@@ -5,63 +5,65 @@ import firebase from "react-native-firebase"
 import DrawerItem from './draweritems'
    
   
-// const WIDTH=Dimensions.get('window').width
-// const HEIGHT=Dimensions.get('window').height
 
 export default class Menudrawer extends Component{
     constructor(props){
         super(props)
         this.state={
-            usersdoc:null,
+            usersdoc:global.userdoc,
+            isloading:false
           
         }
     }
-    
-componentWillMount(){
+    // 
+// componentWillMount(){
 
-    firebase.firestore().collection('users').doc(global.user.uid)
-            .get().then((doc)=>{
-            if(doc.exists){
-
-            global.userdoc=doc
-        this.setState({usersdoc:doc})
-            console.log(global.userdoc)
-            }
-            else {
-        console.log('not found ...')
-            }
-        }).catch((error)=>{
-            console.log(error)
-        })
-    // AsyncStorage.getItem('userData').then((user_data_json) => {
-    //     let userData = JSON.parse(user_data_json)
-    //     this.setState({
-    //     usersdoc: userData,
-    //     });
-    //   });
-
-}
+  
+//     this.get_user_data()
+// }
 
 componentDidMount(){
     console.log(this.state.usersdoc)
 
-    
 }
 
-logout= async()=>{
-    try {
-        await firebase.auth().signOut()
-        this.props.navigation.navigate('Login')
-    } catch (e) {
-        console.log(e);
+// get_user_data= ()=>{
+// this.setState({isloading:true})
+    
+//         AsyncStorage.getItem('AuthUser').then((retrievedItem)=>{
+
+//             const item = JSON.parse(retrievedItem);
+//             this.setState({usersdoc:item})
+
+//         }).catch(error => console.log(error))
+       
+//       this.setState({isloading:false})
+
+// }
+
+logout= ()=>{
+    // try {
+         firebase.auth().signOut().then(() => {
+         
+         AsyncStorage.removeItem('AuthUser').then(()=>{
+                console.log('user removed')
+            this.props.navigation.navigate('Login')
+         }).catch( ()=> console.log('unable to remove item'))
+        
+        }).catch(error=>{
+
+            console.log(error)
+        })
     }
 
-}
+
 
     
 render(){
-console.log(this.state.usersdoc)
-   return this.state.usersdoc ? <DrawerItem logout={this.logout} navigation={this.props.navigation} userdata={this.state.usersdoc}/>:null
+
+   return this.state.usersdoc ?
+    <DrawerItem logout={this.logout} loading={this.state.isloading}
+     navigation={this.props.navigation} userdata={this.state.usersdoc}/>:null
        
 
 }

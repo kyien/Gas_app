@@ -25,6 +25,7 @@ import KeyboardShift from "../components/keyboardshift"
 export default class Login extends ValidationComponent{
   constructor(props){
     super(props)
+    global.userdoc=null
     this.state={
       email:'',
       password:'',
@@ -33,8 +34,8 @@ export default class Login extends ValidationComponent{
     }
   }
   componentDidMount(){
-    this.setState({isloading:false})
     loc(this)
+    this.setState({isloading:false})
    
 }
 
@@ -44,11 +45,35 @@ componentWillUnMount() {
     }
 
 
-  
+    storeData =  (userid) => {
+      firebase.firestore().collection('users').doc(userid)
+      .get().then( (doc)=>{
+
+        global.userdoc=doc._data
+        console.log( global.userdoc)
+
+        this.props.navigation.navigate('Home')
+
+        // AsyncStorage.setItem('AuthUser', JSON.stringify(doc._data))
+        // .then( ()=>{
+        //   console.log('It was saved successfully')
+
+
+        //   } )
+        //   .catch( ()=>{
+        //   console.log('There was an error saving the product')
+        //   } )
+         
+    
+  }).catch((error)=>{
+      console.log(error)
+  })
+      
+}
    
   
 
-    login=()=>{
+    login= ()=>{
         this.setState({isloading:true})
 
         this.validate({
@@ -64,16 +89,18 @@ componentWillUnMount() {
               .then((AuthUser)=>{ 
               
                   
-                global.user=AuthUser.user
-                
-                AsyncStorage.setItem('AuthUser', JSON.stringify(AuthUser.user));
+                const Auser=AuthUser.user
+                global.user=Auser
+
+
+
+               this.storeData(Auser.uid)
                   this.setState({isloading:false})
                   ToastAndroid.showWithGravity(
                     'Success!',
                     ToastAndroid.SHORT,
                     ToastAndroid.TOP,
                     )
-                    this.props.navigation.navigate('Home')
                 }).catch((error)=>{
                   
                   console.log(error)
@@ -95,8 +122,8 @@ componentWillUnMount() {
   render(){
       
     return(
-      <KeyboardShift>
-      {() => (
+      // <KeyboardShift>
+      // {() => (
       <View style={styles.container}>
       <Loader
           isloading={this.state.isloading} />
@@ -169,8 +196,8 @@ componentWillUnMount() {
             </View>
 
       </View>
-       )}
-      </KeyboardShift>
+      //  )}
+      // </KeyboardShift>
     )
   }
 }

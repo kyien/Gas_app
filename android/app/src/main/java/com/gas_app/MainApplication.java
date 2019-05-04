@@ -6,7 +6,7 @@ import com.facebook.react.ReactApplication;
 import com.reactnativecommunity.asyncstorage.AsyncStoragePackage;
 import com.reactnativecommunity.netinfo.NetInfoPackage;
 import com.horcrux.svg.SvgPackage;
-import com.RNFetchBlob.RNFetchBlobPackage;
+// import com.RNFetchBlob.RNFetchBlobPackage;
 import com.imagepicker.ImagePickerPackage;
 import io.invertase.firebase.RNFirebasePackage;
 import io.invertase.firebase.firestore.RNFirebaseFirestorePackage;
@@ -40,7 +40,7 @@ public class MainApplication extends Application implements ReactApplication {
             new AsyncStoragePackage(),
             new NetInfoPackage(),
             new SvgPackage(),
-            new RNFetchBlobPackage(),
+            // new RNFetchBlobPackage(),
             new ImagePickerPackage(),
           new RCTSplashScreenPackage(),
             new RNFirebasePackage(),

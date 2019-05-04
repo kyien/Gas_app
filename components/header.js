@@ -10,10 +10,11 @@ import Menubar from "./menubar"
 export default class HeaderBar extends Component {
 constructor(props){
     super(props)
+
 }
 
 render(){
-
+    
     return(
 
         <Header style={styles.drawerHeader}>

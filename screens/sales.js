@@ -70,11 +70,11 @@ export default class SalesForm extends ValidationComponent{
        clearinputs=()=> {
            this.setState({cust_name:''})
            this.setState({cust_phone:''})
-           this.setState({unit_price:''})
-           this.setState({sixkg:''})
-           this.setState({thirteenkg:''})
-           this.setState({others:''})
-           this.setState({receiptUrl:'xxxx.jpg'})
+           this.setState({unit_price:'0'})
+           this.setState({sixkg:'0'})
+           this.setState({thirteenkg:'0'})
+           this.setState({others:'0'})
+           this.setState({receiptUrl:''})
            this.setState({total:''})
         // this.forceUpdate()
        }
@@ -122,7 +122,7 @@ export default class SalesForm extends ValidationComponent{
                     this.setState({receiptUrl:snapshot.downloadURL})
                     this.setState({isloading:false})
 
-                  })
+                  }).catch((error)=> console.log(error))
                 }
                 
 
@@ -144,8 +144,9 @@ export default class SalesForm extends ValidationComponent{
                   this.salesref =firebase.firestore().collection('sales')
                   console.log(this.salesref)
                   const salesDoc= {
+                      id:this.id_gen(),
                       Total:this.state.total,
-                      quantity:this.state.quantity +'kg',
+                      quantity:this.state.quantity ,
                       receipt:this.state.receiptUrl,
                       '13kg':this.state.thirteenkg,
                       '6kg':this.state.sixkg,
@@ -222,7 +223,7 @@ export default class SalesForm extends ValidationComponent{
                         returnKeyType="go" 
                         // placeholder='unit_price' 
                         keyboardType='numeric'
-                        value={this.state.cust_name}
+                        value={this.state.cust_phone}
                         placeholderTextColor='#DDDBDA' 
                         onChangeText={(cust_phone) => this.setState({cust_phone})}
 
@@ -335,12 +336,12 @@ export default class SalesForm extends ValidationComponent{
                         <Image ref='receiptUrl'
                             source= {{uri: this.state.receiptUrl}}
                     
-                            style={{ width:wp('50%'), height: hp('23%') }}
+                            style={{ width:wp('70%'), height: hp('30%') }}
                         />:
                         <Image  ref='receiptUrl'
                             source={require('../assets/generic_avatar.jpg')}
                     
-                            style={{ width:wp('50%'), height: hp('23%') }}
+                            style={{ width:wp('70%'), height: hp('30%') }}
                         />}
                         <Text>{this.checkerr('receiptUrl')}</Text>
                     <TouchableOpacity style={styles.buttonContainer} onPress={this.OnSubmit}>      

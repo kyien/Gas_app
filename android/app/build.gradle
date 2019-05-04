@@ -86,12 +86,12 @@ apply from: "../../node_modules/react-native/react.gradle"
  * Upload all the APKs to the Play Store and people will download
  * the correct one based on the CPU architecture of their device.
  */
-def enableSeparateBuildPerCPUArchitecture = false
+def enableSeparateBuildPerCPUArchitecture = true
 
 /**
  * Run Proguard to shrink the Java bytecode in release builds.
  */
-def enableProguardInReleaseBuilds = false
+def enableProguardInReleaseBuilds = true
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
@@ -117,20 +117,33 @@ android {
 
     }
 
+     signingConfigs {
+    release {
+         if (project.hasProperty('GAS_APP_RELEASE_STORE_FILE')) {
+      storeFile file(GAS_APP_RELEASE_STORE_FILE)
+      storePassword GAS_APP_RELEASE_STORE_PASSWORD
+      keyAlias GAS_APP_RELEASE_KEY_ALIAS
+      keyPassword GAS_APP_RELEASE_KEY_PASSWORD
+       }
+    }
+  }
+
 
 
     splits {
         abi {
             reset()
             enable enableSeparateBuildPerCPUArchitecture
-            universalApk false  // If true, also generate a universal APK
+            universalApk true  // If true, also generate a universal APK
             include "armeabi-v7a", "x86", "arm64-v8a", "x86_64"
         }
     }
     buildTypes {
         release {
-            minifyEnabled enableProguardInReleaseBuilds
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+             signingConfig signingConfigs.release
         }
     }
     // applicationVariants are e.g. debug, release
@@ -152,7 +165,7 @@ dependencies {
     implementation project(':@react-native-community_async-storage')
     implementation project(':@react-native-community_netinfo')
     implementation project(':react-native-svg')
-    implementation project(':react-native-fetch-blob')
+    // implementation project(':react-native-fetch-blob')
     implementation project(':react-native-image-picker')
     implementation project(':react-native-firebase')
     implementation project(':react-native-vector-icons')

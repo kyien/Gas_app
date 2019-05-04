@@ -10,12 +10,9 @@ import {
     removeOrientationListener as rol
   } from 'react-native-responsive-screen'
   import firebase from 'react-native-firebase'
-
-
-    import { BarChart,LineChart } from "react-native-chart-kit"
+ import { BarChart,LineChart } from "react-native-chart-kit"
   //custom components
  import Loader from "../components/loading"
-
  import HeaderBar from "../components/header"
  
  const cardWidth = Dimensions.get('window').width*0.85
@@ -26,7 +23,8 @@ import {
         super()
         this.state={
             isloading:true,
-            totalsales:[]
+            totals:[],
+            // allsales:null
         }
     }
 
@@ -39,27 +37,43 @@ import {
         rol()
 
     }
-    get_total_sales=()=>{
+    get_total_sales= async ()=>{
         const total=[]
-        let salestotal=firebase.firestore().collection('sales')
+        let salestotal= await firebase.firestore().collection('sales')
         let salesquery=salestotal.get()
         .then((snapshot)=>{
             snapshot.docs.forEach((doc)=>{
                 console.log(doc.data().Total)
                 total.push(doc.data().Total)
-                this.setState({totalsales:total})
-
+                this.setState({totals:total})
+                // this.setState({allsales:doc.data()})
+                
             })
+              console.log(this.state.allsales)
+            //   this.set_sal_data(this.state.allsales)
+
         }).catch((error)=>{
             console.log(error)
         })
         
+        
     }
+
+    // set_sal_data= async (doc)=>{
+    //     await AsyncStorage.setItem('saldat', JSON.stringify(doc))
+    //     .then( ()=>{
+    //         console.log('sal data written successfully')
+    //         } )
+    //         .catch( ()=>{
+    //         console.log('There was an error saving the product')
+    //         } )
+    // }
+
+
 
 
     render(){
-        // console.log(this.state.totalsales)
-
+      
         const chartConfig = {
             backgroundGradientFrom: '#1E2923',
             backgroundGradientTo: '#08130D',
@@ -81,7 +95,6 @@ import {
             <Loader
           isloading={this.state.isloading} />
                         <HeaderBar navigation={this.props.navigation} title={'DashBoard'}/>
-                <Text>Hello Admin</Text>
             
                 <Picker
                     selectedValue={this.state.language}
@@ -89,7 +102,7 @@ import {
                     onValueChange={(itemValue, itemIndex) =>
                         this.props.navigation.navigate(itemValue)
                     }>
-                    <Picker.Item label="Menu" value="xx" />
+                    <Picker.Item label="View records" value="xx" />
                     <Picker.Item label="SalesView" value="Sales" />
                     <Picker.Item label="CashView" value="PettyCash" />
                     </Picker>

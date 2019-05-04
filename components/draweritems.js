@@ -9,6 +9,8 @@ import {
     removeOrientationListener as rol
   } from 'react-native-responsive-screen'
 
+  import Loader from './loading'
+
   export default class DrawerItem extends Component{
 
     constructor(props){
@@ -26,11 +28,13 @@ import {
       }
     
     render(){
-        console.log(this.state.user)
+        const user=this.state.user
+        console.log(user)
         return(
 
             <Container style={styles.container}>
-        
+        <Loader
+          isloading={this.props.loading} />
             <Header style={styles.drawerHeader}>
 
                  <Icon name="arrow-back" 
@@ -44,9 +48,9 @@ import {
                 <Image
                 style={styles.drawerImage}
                 //  source={require('../assets/icon.png')} />  
-                source={{uri:this.state.user._data.photourl}} />
+                source={{uri:this.state.user.photourl}} />
 
-    <Text style={{ color:'#fff'}}> Welcome <Text style={styles.displayname}>{this.state.user._data.displayname}</Text></Text>
+    <Text style={{ color:'#fff'}}> Welcome <Text style={styles.displayname}>{this.state.user.displayname}</Text></Text>
             </Body>
             </Header>
             <ScrollView>
@@ -69,16 +73,12 @@ import {
 
             <Text style={styles.nav_text}>Analytics</Text>
              </ListItem>
-            <ListItem onPress={()=>this.props.navigation.navigate('Settings')} last>
+            <ListItem onPress={()=>this.props.navigation.navigate('Settings',{user})} last>
             <Icon type="Ionicons" name="settings" style={{color:'white'}}></Icon>
 
             <Text style={styles.nav_text}>Settings</Text>
              </ListItem>
-            <ListItem last>
-            <Icon type="Ionicons" name="alert" style={{color:'white'}}></Icon>
-
-            <Text style={styles.nav_text}>About</Text>
-             </ListItem>
+        
            
             <ListItem onPress={this.props.logout}last>
             <Icon type="FontAwesome" name="sign-out" style={{color:'white'}}></Icon>

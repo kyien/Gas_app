@@ -54,3 +54,7 @@ buck-out/
 
 # Bundle artifact
 *.jsbundle
+
+#keystore
+android/app/my-keystore-name.keystore
+android/app/build

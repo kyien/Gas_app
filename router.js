@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import {Platform,Dimensions} from "react-native";
 import {createDrawerNavigator,createAppContainer,
 createStackNavigator,createSwitchNavigator} from 'react-navigation'
@@ -9,20 +9,17 @@ import Home from './screens/home'
 import SettingsScreen from './screens/settings'
 import Menudrawer from "./components/menudrawer";
 import SalesForm from './screens/sales'
-import Dash from './screens/dash'
 import Cash from './screens/pettycash' 
 import Register from './screens/register' 
 import Login from './screens/login' 
-import { CheckBox } from "native-base"
-import AllSales from './screens/admin/salesview'
-import AllExpenses from './screens/admin/cashview'
+import Dashrouter from './screens/admin/router'
 
 const WIDTH=Dimensions.get('window').width
-
+// const navigation=this.props.navigation
 const Drawerconfig={
     drawerWidth:WIDTH*0.75,
-    contentComponent:({navigation})=>{
-        return(<Menudrawer navigation={navigation}/>)
+    contentComponent:(props)=>{
+        return(<Menudrawer {...props}/>)
     }
 }
 
@@ -38,18 +35,13 @@ export const signedin= createDrawerNavigator({
       Settings:{
         screen:SettingsScreen
       },
-      Dash:{
-          screen:Dash
-      },
+      
       Cash:{
           screen:Cash
       },
-      Sales:{
-          screen:AllSales
-      },
-      PettyCash:{
-          screen:AllExpenses
-      }
+     Dashrouter:{
+         screen:Dashrouter
+     }
       
     },
     Drawerconfig
@@ -84,8 +76,8 @@ export const signedout=createStackNavigator({
         },
         {
 
-            initialRouteName: 'signedin'
-            // initialRouteName: 'checkauth'
+            // initialRouteName: 'signedin'
+            initialRouteName: 'checkauth'
             // headerMode: 'none'
 
             // initialRouteName: signedIn ? "signedin" : "signedout"

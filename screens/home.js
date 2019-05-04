@@ -31,12 +31,13 @@ export default class Home extends Component {
  
     
     render() {
+      
         return(
             < ImageBackground 
             source={require('../assets/ssp.jpg')} 
 
             style={styles.container}>
-            <HeaderBar navigation={this.props.navigation} title={'Home'}/>
+            <HeaderBar navigation={this.props.navigation} title={'Home'} />
               
               <Body  style={styles.content}>
 

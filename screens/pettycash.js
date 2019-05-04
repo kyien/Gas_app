@@ -29,7 +29,7 @@ import {
             description:'',
             unit_price:'',
             total:'0',
-            imageUrl:'xxxx.jpg',
+            imageUrl:'',
             isloading:true
 
         }
@@ -45,6 +45,18 @@ import {
           rol()
           
         }
+
+        checkerr=(field)=>{
+
+            if(this.isFieldInError(field) && this.getErrorsInField(field).length>0){
+
+                return this.getErrorsInField(field)
+                .map(errorMessage => <Text style={styles.err_field}>{errorMessage}</Text>)
+            }
+            else{
+                return null
+            }
+      }
 
         id_gen =()=> {
              
@@ -105,7 +117,7 @@ import {
                     this.setState({imageUrl:snapshot.downloadURL})
                     this.setState({isloading:false})
 
-                  })
+                  }).catch((error)=> console.log(error))
                 }
                 
 
@@ -123,6 +135,7 @@ import {
                 unit_price: {required: true,numbers:true},
                 item: {required: true},
                 description: {required: true},
+                imageUrl: {required: true},
               });
 
               if(this.isFormValid()){
@@ -194,7 +207,7 @@ import {
                         onChangeText={(quantity) => this.setState({quantity})}
                         onEndEditing={this.calculateTotal}
                         />
-    {this.isFieldInError('quantity') && this.getErrorsInField('quantity').map(errorMessage => <Text style={styles.err_field}>{errorMessage}</Text>) }
+                   <Text>{this.checkerr('quantity')}</Text>
 
                         <Text  style={styles.inputlabel}>unit_price:</Text>
 
@@ -209,7 +222,7 @@ import {
                             onEndEditing={this.calculateTotal}
 
                             />
-                        {this.isFieldInError('unit_price') && this.getErrorsInField('unit_price').map(errorMessage => <Text style={styles.err_field}>{errorMessage}</Text>) }
+                   <Text>{this.checkerr('unit_price')}</Text>
 
 
                     <Text  style={styles.inputlabel}>Item:</Text>
@@ -226,7 +239,7 @@ import {
 
                         />
 
-{this.isFieldInError('item') && this.getErrorsInField('item').map(errorMessage => <Text style={styles.err_field}>{errorMessage}</Text>) }
+                   <Text>{this.checkerr('item')}</Text>
 
                         <Text  style={styles.inputlabel}>Description:</Text>
 
@@ -243,7 +256,7 @@ import {
 
 
                             />
-{this.isFieldInError('description') && this.getErrorsInField('description').map(errorMessage => <Text style={styles.err_field}>{errorMessage}</Text>) }
+                   <Text>{this.checkerr('description')}</Text>
 
 
                     
@@ -264,18 +277,19 @@ import {
                         </TouchableOpacity>
                       
                         {this.state.imageUrl ?
-                        <Image ref='receiptUrl'
-                            source= {{uri: this.state.receiptUrl}}
+                        <Image ref='imageUrl'
+                            source= {{uri: this.state.imageUrl}}
                     
-                            style={{ width:wp('50%'), height: hp('23%') }}
+                            style={{ width:wp('70%'), height: hp('30%') }}
                         />:
-                        <Image  ref='receiptUrl'
+                        <Image  ref='imageUrl'
                             source={require('../assets/generic_avatar.jpg')}
                     
-                            style={{ width:wp('50%'), height: hp('23%') }}
+                            style={{ width:wp('70%'), height: hp('30%') }}
                         />}
                    
-        
+                   <Text>{this.checkerr('imageUrl')}</Text>
+
                     <TouchableOpacity style={styles.buttonContainer} 
                     onPress={this.OnSubmit}
                     >      
@@ -318,11 +332,13 @@ import {
             backgroundColor: '#2980b6',
             paddingVertical:hp('1.6%'),
             width:wp('50%'),
-            left:wp('7%')
+            left:wp('7%'),
+            marginBottom:hp('2%')
             // paddingTop:20
             // flexGrow:0.4
            },
            uploadbtn:{
+            marginTop: hp('4%'),
             backgroundColor: '#2980b6',
             paddingVertical:hp('1.6%'),
             marginBottom:hp('3%'),
@@ -349,7 +365,7 @@ import {
             width:wp('70%'),
             backgroundColor: '#9B928D',
             borderRadius: 2,
-            marginBottom:hp('2%'),
+            marginBottom:hp('1.5%'),
             paddingLeft:wp('10%'),
             color: '#fff'
         },
